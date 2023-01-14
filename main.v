@@ -6,7 +6,11 @@ module top(
    output LED_E,
    output LED_S,
    output LED_W,
-   output LED_CENTRE);
+   output LED_CENTRE,
+   output PIO1_02,
+   output PIO1_03,
+   output PIO1_04,
+   output PIO1_05);
    reg running = 0;
    reg [23:0] divider;
    reg [3:0] leds;
@@ -32,5 +36,9 @@ module top(
    assign LED_E = leds[1];
    assign LED_S = leds[2];
    assign LED_W = leds[3];
+   assign PIO1_02 = leds[0];
+   assign PIO1_03 = leds[1];
+   assign PIO1_04 = leds[2];
+   assign PIO1_05 = leds[3];
    assign LED_CENTRE = 1;
 endmodule // top

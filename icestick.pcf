@@ -6,3 +6,13 @@ set_io LED_S 97
 set_io LED_W 96
 set_io LED_CENTRE 95
 set_io clk 21
+
+# with ref to https://github.com/BrunoLevy/learn-fpga/blob/master/FemtoRV/TUTORIALS/IceStick.md
+set_io PIO1_02 78
+set_io PIO1_03 79
+set_io PIO1_04 80
+set_io PIO1_05 81
+#set_io PIO1_06 87
+#set_io PIO1_07 88
+#set_io PIO1_08 90
+#set_io PIO1_09 91
