@@ -1,44 +1,57 @@
 `default_nettype none
 
-module top(
-   input clk,
-   output LED_N,
-   output LED_E,
-   output LED_S,
-   output LED_W,
-   output LED_CENTRE,
-   output PIO1_02,
-   output PIO1_03,
-   output PIO1_04,
-   output PIO1_05);
-   reg running = 0;
-   reg [23:0] divider;
-   reg [3:0] leds;
-   
-   always @(posedge clk) begin
-      if (running) begin
-           if (divider == 1000000) 
-             begin
-                divider <= 0;
-                leds <= {leds[2:0], leds[3]};
-             end
-           else begin
-             divider <= divider + 1;
-           end
+module top (
+    input  clk,
+    output HSYNC,
+    output VSYNC,
+    output LED_CENTRE,
+    output RED,
+    output GREEN,
+    output BLUE
+);
+  reg         running = 0;
+  reg  [24:0] divider;
+  reg         led = 0;
+
+  // PLL to get 25MHz clock
+  wire        sysclk;
+  wire        locked;
+  pll pll25Mhz (
+      .clock_in(clk),
+      .clock_out(sysclk),
+      .locked(locked)
+  );
+
+  wire display_on;
+  wire [9:0] pos_x;
+  wire [9:0] pos_y;
+
+  vga vga (
+      .clk(sysclk),
+      .reset(!running),
+      .hsync(HSYNC),
+      .vsync(VSYNC),
+      .display_on(display_on),
+      .pos_x(pos_x),
+      .pos_y(pos_y)
+  );
+
+  always @(posedge sysclk) begin
+    if (running) begin
+      if (divider == 25_000_000) begin
+        divider <= 0;
+        led = !led;
       end else begin
-         running <= 1;
-         leds <= 4'b0001;
-         divider <= 0;
+        divider <= divider + 1;
       end
-   end
-   
-   assign LED_N = leds[0];
-   assign LED_E = leds[1];
-   assign LED_S = leds[2];
-   assign LED_W = leds[3];
-   assign PIO1_02 = leds[0];
-   assign PIO1_03 = leds[1];
-   assign PIO1_04 = leds[2];
-   assign PIO1_05 = leds[3];
-   assign LED_CENTRE = 1;
-endmodule // top
+    end else begin
+      running <= 1;
+      divider <= 0;
+    end
+  end
+
+  assign LED_CENTRE = led;
+  assign RED = display_on && pos_x < 120;
+  assign GREEN = display_on && pos_x < 200;
+  assign BLUE = display_on && pos_y < 250;
+endmodule
