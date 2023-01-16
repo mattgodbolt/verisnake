@@ -5,7 +5,7 @@
 #set_io LED_S 97
 #set_io LED_W 96
 set_io LED_CENTRE 95
-set_io clk 21
+set_io ICE_12MHZ_CLOCK 21
 
 # with ref to https://github.com/BrunoLevy/learn-fpga/blob/master/FemtoRV/TUTORIALS/IceStick.md
 #set_io PIO1_02 78

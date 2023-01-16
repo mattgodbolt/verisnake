@@ -17,7 +17,7 @@ out:
 	mkdir -p out
 
 out/main.blif: $(INPUTS) | out
-	$(YOSYS) -q -p "synth_ice40 -top top -blif $@" $^
+	$(YOSYS) -q -p "synth_ice40 -top top_ice -blif $@" $^
 
 out/%.txt: out/%.blif icestick.pcf | out
 	$(ARACHNE_PNR) -p icestick.pcf $< -o $@
