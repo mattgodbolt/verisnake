@@ -1,12 +1,12 @@
 `default_nettype none
-`timescale 1ns/1ns
+`timescale 1ns / 1ns
 
 module vga (
     input clk,
     input reset,
     output display_on,
-    output reg hsync,
-    output reg vsync,
+    output hsync,
+    output vsync,
     output reg [9:0] pos_x,
     output reg [9:0] pos_y
 );
@@ -30,11 +30,7 @@ module vga (
     if (reset) begin
       pos_x <= 0;
       pos_y <= 0;
-      hsync <= 0;
-      vsync <= 0;
     end else begin
-      hsync <= (pos_x >= (H_VISIBLE + H_FRONT_PORCH - 1) && pos_x < (H_VISIBLE + H_FRONT_PORCH + H_SYNC_PULSE - 1));
-      vsync <= (pos_y >= (V_VISIBLE + V_FRONT_PORCH - 1) && pos_y < (V_VISIBLE + V_FRONT_PORCH + V_SYNC_PULSE - 1));
       if (pos_x < H_WHOLE_LINE - 1) begin
         pos_x <= pos_x + 1;
       end else begin
@@ -49,4 +45,6 @@ module vga (
   end
 
   assign display_on = !reset && pos_x < H_VISIBLE && pos_y < V_VISIBLE;
+  assign hsync = !reset && (pos_x >= (H_VISIBLE + H_FRONT_PORCH) && pos_x < (H_VISIBLE + H_FRONT_PORCH + H_SYNC_PULSE));
+  assign vsync = !reset && (pos_y >= (V_VISIBLE + V_FRONT_PORCH) && pos_y < (V_VISIBLE + V_FRONT_PORCH + V_SYNC_PULSE));
 endmodule

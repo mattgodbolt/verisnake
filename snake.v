@@ -3,12 +3,12 @@
 module snake (
     input  clk,
     input  reset,
-    output led_centre,
-    output hsync,
-    output vsync,
-    output red,
-    output green,
-    output blue
+    output wire led_centre,
+    output wire hsync,
+    output wire vsync,
+    output wire red,
+    output wire green,
+    output wire blue
 );
 
   wire       display_on;
@@ -41,6 +41,7 @@ module snake (
   end
 
   always @(posedge (clk && vsync)) begin
+    // todo this flashes much faster than I would expect so I reckon it's not working the way I'd expect
     if (divider == game_speed) begin
       led = !led;
       divider <= 0;

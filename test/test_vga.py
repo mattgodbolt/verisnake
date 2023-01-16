@@ -4,6 +4,7 @@ from cocotb.triggers import ClockCycles
 
 VGA_CLOCK_FREQ = 12.125 * 1000 * 1000
 NS_PER_CLOCK = int(1_000_000_000 / VGA_CLOCK_FREQ)
+VGA_CLOCKS_PER_LINE = 800
 
 
 async def reset(dut):
@@ -41,7 +42,7 @@ async def test_increments_x(dut):
 
 
 @cocotb.test()
-async def test_vga_hblank_one_line(dut):
+async def test_one_whole_line(dut):
     clock = Clock(dut.clk, NS_PER_CLOCK, units="ns")
     await cocotb.start(clock.start())
     await reset(dut)
@@ -106,6 +107,90 @@ async def test_vga_hblank_one_line(dut):
     await ClockCycles(dut.clk, 1)
     assert dut.pos_x == 0
     assert dut.pos_y == 1
+    assert dut.hsync == 0
+    assert dut.vsync == 0
+    assert dut.display_on == 1
+
+
+@cocotb.test()
+async def test_several_lines(dut):
+    clock = Clock(dut.clk, NS_PER_CLOCK, units="ns")
+    await cocotb.start(clock.start())
+    await reset(dut)
+
+    await ClockCycles(dut.clk, VGA_CLOCKS_PER_LINE * 100)
+    assert dut.pos_x == 0
+    assert dut.pos_y == 100
+    assert dut.hsync == 0
+    assert dut.vsync == 0
+    assert dut.display_on == 1
+
+    await ClockCycles(dut.clk, VGA_CLOCKS_PER_LINE * 300)
+    assert dut.pos_x == 0
+    assert dut.pos_y == 400
+    assert dut.hsync == 0
+    assert dut.vsync == 0
+    assert dut.display_on == 1
+
+    await ClockCycles(dut.clk, VGA_CLOCKS_PER_LINE * 79)
+    assert dut.pos_x == 0
+    assert dut.pos_y == 479
+    assert dut.hsync == 0
+    assert dut.vsync == 0
+    assert dut.display_on == 1
+
+    # beginning of the front porch
+    await ClockCycles(dut.clk, VGA_CLOCKS_PER_LINE)
+    assert dut.pos_x == 0
+    assert dut.pos_y == 480
+    assert dut.hsync == 0
+    assert dut.vsync == 0
+    assert dut.display_on == 0
+
+    # end of the front porch
+    await ClockCycles(dut.clk, VGA_CLOCKS_PER_LINE * 9 + VGA_CLOCKS_PER_LINE - 1)
+    assert dut.pos_x == 799
+    assert dut.pos_y == 489
+    assert dut.hsync == 0
+    assert dut.vsync == 0
+    assert dut.display_on == 0
+
+    # first cycle of the sync pulse
+    await ClockCycles(dut.clk, 1)
+    assert dut.pos_x == 0
+    assert dut.pos_y == 490
+    assert dut.hsync == 0
+    assert dut.vsync == 1
+    assert dut.display_on == 0
+
+    # last cycle of the sync pulse
+    await ClockCycles(dut.clk, VGA_CLOCKS_PER_LINE * 2 - 1)
+    assert dut.pos_x == 799
+    assert dut.pos_y == 491
+    assert dut.hsync == 0
+    assert dut.vsync == 1
+    assert dut.display_on == 0
+
+    # first cycle of the back porch
+    await ClockCycles(dut.clk, 1)
+    assert dut.pos_x == 0
+    assert dut.pos_y == 492
+    assert dut.hsync == 0
+    assert dut.vsync == 0
+    assert dut.display_on == 0
+
+    # last cycle of the back porch
+    await ClockCycles(dut.clk, VGA_CLOCKS_PER_LINE * 33 - 1)
+    assert dut.pos_x == 799
+    assert dut.pos_y == 524
+    assert dut.hsync == 0
+    assert dut.vsync == 0
+    assert dut.display_on == 0
+
+    # new frame!
+    await ClockCycles(dut.clk, 1)
+    assert dut.pos_x == 0
+    assert dut.pos_y == 0
     assert dut.hsync == 0
     assert dut.vsync == 0
     assert dut.display_on == 1
