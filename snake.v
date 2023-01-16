@@ -1,8 +1,8 @@
 `default_nettype none
 
 module snake (
-    input  clk,
-    input  reset,
+    input clk,
+    input reset,
     output wire led_centre,
     output wire hsync,
     output wire vsync,
@@ -14,12 +14,12 @@ module snake (
   wire       display_on;
   wire [9:0] pos_x;
   wire [9:0] pos_y;
-  reg        led = 0;
-  reg  [7:0] divider = 0;
-
+  reg        led;
+  reg  [7:0] divider;
   reg  [6:0] food_x;
   reg  [5:0] food_y;
   reg  [6:0] game_speed;
+  reg        prev_vsync;
 
   vga vga (
       .clk(clk),
@@ -33,20 +33,22 @@ module snake (
 
   always @(posedge clk) begin
     if (reset) begin
+      led <= 0;
+      prev_vsync <= 0;
+      divider <= 0;
       food_x <= 7'd20;
       food_y <= 6'd30;
-      game_speed = 6'd60;
+      game_speed = 7'd60;
     end else begin
-    end
-  end
-
-  always @(posedge (clk && vsync)) begin
-    // todo this flashes much faster than I would expect so I reckon it's not working the way I'd expect
-    if (divider == game_speed) begin
-      led = !led;
-      divider <= 0;
-    end else begin
-      divider <= divider + 1;
+      prev_vsync <= vsync;
+      if (!prev_vsync && vsync) begin
+        if (divider == game_speed) begin
+          led = !led;
+          divider <= 0;
+        end else begin
+          divider <= divider + 1;
+        end
+      end
     end
   end
 
