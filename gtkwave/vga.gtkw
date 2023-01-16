@@ -1,0 +1,28 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Mon Jan 16 19:54:03 2023
+[*]
+[dumpfile] "/home/matthew/dev/zero2asic/verisnake/out/vga.vcd"
+[dumpfile_mtime] "Mon Jan 16 19:22:10 2023"
+[dumpfile_size] 1141
+[savefile] "/home/matthew/dev/zero2asic/verisnake/gtkwave/vga.gtkw"
+[timestart] 442
+[size] 1863 1385
+[pos] -1 -1
+*-9.600000 3884 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 297
+[signals_width] 110
+[sst_expanded] 1
+[sst_vpaned_height] 434
+@28
+vga.clk
+vga.reset
+vga.display_on
+vga.hsync
+vga.vsync
+@24
+vga.pos_x[9:0]
+@25
+vga.pos_y[9:0]
+[pattern_trace] 1
+[pattern_trace] 0

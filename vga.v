@@ -1,4 +1,5 @@
 `default_nettype none
+`timescale 1ns/1ns
 
 module vga (
     input clk,
@@ -32,8 +33,8 @@ module vga (
       hsync <= 0;
       vsync <= 0;
     end else begin
-      hsync <= (pos_x >= (H_VISIBLE + H_FRONT_PORCH) && pos_x < (H_VISIBLE + H_FRONT_PORCH + H_SYNC_PULSE));
-      vsync <= (pos_y >= (V_VISIBLE + V_FRONT_PORCH) && pos_y < (V_VISIBLE + V_FRONT_PORCH + V_SYNC_PULSE));
+      hsync <= (pos_x >= (H_VISIBLE + H_FRONT_PORCH - 1) && pos_x < (H_VISIBLE + H_FRONT_PORCH + H_SYNC_PULSE - 1));
+      vsync <= (pos_y >= (V_VISIBLE + V_FRONT_PORCH - 1) && pos_y < (V_VISIBLE + V_FRONT_PORCH + V_SYNC_PULSE - 1));
       if (pos_x < H_WHOLE_LINE - 1) begin
         pos_x <= pos_x + 1;
       end else begin

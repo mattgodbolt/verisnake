@@ -1,0 +1,10 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1673899867" />
+    <testcase name="test_reset" classname="test.test_vga" file="/home/matthew/dev/zero2asic/verisnake/test/test_vga.py" lineno="16" time="0.0015406608581542969" sim_time_ns="83.0" ratio_time="53872.98545341999" />
+    <testcase name="test_increments_x" classname="test.test_vga" file="/home/matthew/dev/zero2asic/verisnake/test/test_vga.py" lineno="29" time="0.015253305435180664" sim_time_ns="8365.0" ratio_time="548405.7233068134" />
+    <testcase name="test_vga_hblank_one_line" classname="test.test_vga" file="/home/matthew/dev/zero2asic/verisnake/test/test_vga.py" lineno="43" time="0.09317183494567871" sim_time_ns="53957.0" ratio_time="579112.7762103017">
+      <failure />
+    </testcase>
+  </testsuite>
+</testsuites>
