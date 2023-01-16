@@ -14,10 +14,12 @@ module snake (
   wire       display_on;
   wire [9:0] pos_x;
   wire [9:0] pos_y;
-  reg  [9:0] highlight_x = 0;
-  reg  [9:0] highlight_y = 0;
   reg        led = 0;
   reg  [7:0] divider = 0;
+
+  reg  [6:0] food_x;
+  reg  [5:0] food_y;
+  reg  [6:0] game_speed;
 
   vga vga (
       .clk(clk),
@@ -29,13 +31,17 @@ module snake (
       .pos_y(pos_y)
   );
 
-  always @(posedge vsync) begin
-    highlight_x <= highlight_x + 1;
-    if (highlight_x == 640) begin
-      highlight_x <= 0;
-      highlight_y <= highlight_y + 1;
+  always @(posedge clk) begin
+    if (reset) begin
+      food_x <= 7'd20;
+      food_y <= 6'd30;
+      game_speed = 6'd60;
+    end else begin
     end
-    if (divider == 30) begin
+  end
+
+  always @(posedge (clk && vsync)) begin
+    if (divider == game_speed) begin
       led = !led;
       divider <= 0;
     end else begin
@@ -43,9 +49,13 @@ module snake (
     end
   end
 
+  wire [6:0] x_block = pos_x[9:3];
+  wire [5:0] y_block = pos_y[8:3];
+  wire on_food = x_block == food_x && y_block == food_y;
+
   assign led_centre = led;
-  assign red = display_on && pos_x == highlight_x;
-  assign green = display_on && pos_y == highlight_y;
+  assign red = display_on && on_food;
+  assign green = display_on && on_food;
   assign blue = display_on && pos_y < 250;
 
 endmodule
