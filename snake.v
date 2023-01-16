@@ -55,10 +55,11 @@ module snake (
   wire [6:0] x_block = pos_x[9:3];
   wire [5:0] y_block = pos_y[8:3];
   wire on_food = x_block == food_x && y_block == food_y;
+  wire on_play_edge = pos_x <= 2 || pos_x >= 637 || pos_y <= 2 || pos_y >= 477;
 
   assign led_centre = led;
   assign red = display_on && on_food;
   assign green = display_on && on_food;
-  assign blue = display_on && pos_y < 250;
+  assign blue = display_on && on_play_edge;
 
 endmodule
