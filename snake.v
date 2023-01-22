@@ -21,9 +21,9 @@ module snake (
   reg  [6:0] game_speed;
   reg        prev_vsync;
 
-  wire       ram_out;
+  wire [2:0] ram_out;
   reg        ram_in = 1;
-  reg        ram_value = 0;
+  reg  [2:0] ram_value = 3'b111;
   play_area play_area (
       .clk(clk),
       .reset(reset),
@@ -56,7 +56,7 @@ module snake (
       ram_in <= 1;
       ram_value <= 0;
     end else begin
-      ram_value  <= pos_x[3] ^ pos_y[3];
+      ram_value  <= {2'b00, {pos_x[3] ^ pos_y[3]}};
       prev_vsync <= vsync;
       if (!prev_vsync && vsync) begin
         if (divider == game_speed) begin
@@ -75,7 +75,7 @@ module snake (
   wire [5:0] y_block = pos_y[8:3];
   wire on_food = x_block == food_x && y_block == food_y;
   wire on_play_edge = pos_x <= 2 || pos_x >= 637 || pos_y <= 2 || pos_y >= 477;
-  wire on_snake = ram_out;
+  wire on_snake = |ram_out;
 
   assign led_centre = led;
   assign red = display_on && on_food;

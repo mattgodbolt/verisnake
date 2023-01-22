@@ -6,10 +6,10 @@ module play_area (
     input wire [6:0] x,  // or whatever
     input wire [5:0] y,  // or whatever
     input wire write_enable,
-    input wire write_value,
-    output reg out
+    input wire [2:0] write_value,
+    output reg [2:0] out
 );
-  reg RAM[(1<<11)-1:0];
+  reg [2:0] RAM[(1<<11)-1:0];
   always @(posedge clk) begin
     if (reset) begin
       out <= 0;

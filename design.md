@@ -31,75 +31,48 @@ On an update:
   - (maybe) grow the snake
 - if the snake's new head position coincides with any other part of the snake it's game over
 - we need to move the snake:
-  - if not extending: put the "tail" at the head location in the snake buffer (conceptually)
-  - if extending: add a new "head" segment
+  - add a new "head" in the direction of the snake's motion
+  - if not extending: remove the last segment of the snake (its tail)
 - when picking a new fruit position
   - randomly try a fruit position and "fruit lifetime"
   - if this new fruit position doesn't coincide with the snake, we're good. else keep looking
 
-Each of the snake searches (self-intersection; fruit candidate position) can be done over a number of
-cycles, by iterating over the length of the snake, generating snake positions and comparing against.
-The comparisons are linear in the maximum length of the snake (which is a limiting factor).
+With a bit-mapped screen, the checks for the snake (self-intersection; fruit candidate position) require
+a single look up and non-zero check in RAM. In order to fit into my prototype FPGA board, I need to phrase
+this lookup as an actual RAM with a single-cycle delay, which complicates things a little on the output for VGA
+(we will need to delay the VGA signals by a clock cycle to match the RAM output).
 
-We also need to be able to generate "all the snake segments on this line", which is a case of iterating
-over the length of the snake and comparing the y position - a single line's bitmap can be generated for
-the VGA output.
+The screen size is 80x60 (with 8x8 cells) - multiplying by either 80 is easy though.
 
-### Storing the snake
+### The snake
 
-The snake is stored in a circular buffer, with a head and tail (naturally). The buffer is a fixed size
-which limits the maximum length of the snake.
+The snake uses the bitmapped screen as its buffer for storing and updating.
 
 The snake module:
 - has a `tail_x` and `tail_y` - `log2(width)` and `log2(height)` bits
-- has `NUMSLOTS` direction offsets (buffer) 2 bits each
-- has a `head` offset and a `tail` offset in the buffer `log2(NUMSLOTS)` bits
+- has a `head_x` and `head_y` - `log2(width)` and `log2(height)` bits
+- has a `snake_dir` of 2 bits
 
-It can generate all the positions of the snake one after another, one cycle after another. It does this
-by starting at `tail_x`, `tail_y` and then each cycle updating by running along the length of the snake,
-from `tail` offset, wrapping around the `head` offset.
+To move or extend:
+- update `head_x` and `head_y` by applying the `snake_dir` and then writing the appropriate `3'b1DD` direction to the bitmapped screen.
+- If not extending, update the `tail_x` and `tail_y` by looking at the screen buffer at `tail_x`, `tail_y` and inferring the direction. It then erases the screen buffer at that location.
 
-It needs to be able to move forward:
-- update the `tail_x` and `tail_y` by applying the `tail` slot's direction
-- increment `tail` offset, and `head` offset, and writing the new direction into the `head` slot
-
-It needs to extend:
-- increment `head` and write the new direction into the `head` slot
-
-Vague plans of ins and outs:
-- in: start iteration
-- out: iteration over
-- in: x and y position
-- out: output is valid (x and y are a part of the snake)
-- out: full (no more room!)
-- in: in_x and in_y
-- in: new_head (in_x and in_y should be placed in the head position)
-- in: move_tail (tail should be updated)
+Some care needs to be taken to ensure only one device uses the RAM at a time. Multi-porting seems like overkill?
 
 ### Drawing the screen
 
-Assuming 512 snake slots, and 8x8 grid, we're not going to be filing the screen all that much, which
-might make this game a bit easy. The 8x8 on VGA gives a play area of 80x60 (though we could restrict
-to a subregion).
-
-Either way, we get 800 cycles on VGA each line to be able to iterate over the 512 (if we do one a cycle).
-We can also use the 8 frames "above" each y slice, so we could do 8*512 if needed. The result of this
-operation is a bitmap of "snake/not snake" 1bpp for the 8 lines. We'd need to run this ahead of the
-raster.
+Using the bitmap to draw the appropriate coloured sections is somewhat straightforward, however accessing the
+bitmap RAM is a one-cycle delay. We either need to "pre-empt" and look one location ahead, or we delay the VGA
+signals a single clock.
 
 ### Updating
 
-We need to do up to two searches per frame:
-- snake self-intersection
-- new fruit location self-intersection test
+A state machine will need to be used. At the end of the picture we have lots of time to run an update
+state machine to do all we need to do before going in to "the VGA output needs the RAM" mode.
 
-We only need to do one iteration, and check both at the same time.
-
-We can start the update at the moment we hit the last pixel of the VGA output. Or more easily on the
-first line after. We get 525-480 = 45 scanlines to do this in, which is easily enough, as any one search
-has to be less than 8 scanlines for the rest of the game to work.
+We get 525-480 = 45 scanlines to do this in, which is easily enough.
 
 TODOs:
 - Need a source of random numbers (LFSR) for the fruit.
 - Need a strategy for updating the speed and snake length.
-- Consider 10x10 or 12x12 to make the gameplay area more appropriate.
+- Consider 10x10 or 12x12 to make the gameplay area more appropriate (and save RAM)
