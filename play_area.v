@@ -14,7 +14,7 @@ module play_area #(
     input wire [BIT_DEPTH-1:0] write_value,
     output reg [BIT_DEPTH-1:0] out
 );
-  reg [BIT_DEPTH-1:0] RAM[$clog2(WIDTH*HEIGHT)-1:0];
+  reg [BIT_DEPTH-1:0] RAM[WIDTH*HEIGHT-1:0];
   wire [$clog2(WIDTH*HEIGHT)-1:0] address = x + WIDTH * y;
 
   always @(posedge clk) begin
