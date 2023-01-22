@@ -41,14 +41,18 @@ clean:
 .PHONY: format
 format: $(VERIBLE_FORMAT)
 
-out/%.vvp: test/dump%.v $(INPUTS) | out
-	$(IVERILOG) -o out/$*.vvp -s $* -s dump -g2012 $< $(INPUTS)
+out/%.vvp: $(INPUTS) | out
+	$(IVERILOG) -Wall -o out/$*.vvp -s $* -g2012 $(INPUTS)
 
-# TODO doesn't work all that well for show_% as whichever of test or vcd most recently gets dumped
-out/%.vcd: out/%.vvp test/test_%.py
-	env PYTHONOPTIMIZE=1 COCOTB_RESULTS_FILE=/dev/null MODULE=test.test_$* $(VVP) -M $(COCOTB_LIBS) -m libcocotbvpi_icarus $<
+out/%.vcd: test/test_%.py $(INPUTS) | out
+	echo "module dump (); initial begin \$$dumpfile(\"out/$*.vcd\"); \$$dumpvars(0, $*); #1; end endmodule" > out/dump_$*.v
+	$(IVERILOG) -Wall -o out/$*_dump.vvp -s $* -s dump -g2012 out/dump_$*.v $(INPUTS)
+	# NB deliberately using `test.*`  which breaks the pytest rewriting so that PYTHONOPTIMIZE works
+	# https://docs.pytest.org/en/latest/how-to/assert.html#disabling-assert-rewriting m,aybe?
+	env PYTHONOPTIMIZE=1 COCOTB_RESULTS_FILE=/dev/null MODULE=test.test_$* $(VVP) -M $(COCOTB_LIBS) -m libcocotbvpi_icarus out/$*_dump.vvp
+
 out/%.test.xml: out/%.vvp test/test_%.py
-	env MODULE=test.test_$* COCOTB_RESULTS_FILE=$@.tmp $(VVP) -M $(COCOTB_LIBS) -m libcocotbvpi_icarus $<
+	env MODULE=test_$* COCOTB_RESULTS_FILE=$@.tmp $(VVP) -M $(COCOTB_LIBS) -m libcocotbvpi_icarus $<
 	@! grep failure $@.tmp
 	@mv $@.tmp $@
 
@@ -56,4 +60,4 @@ show_%: out/%.vcd gtkwave/%.gtkw
 	$(GTKWAVE) $^
 
 .PHONY: test
-test: out/vga.test.xml
+test: out/vga.test.xml out/play_area.test.xml

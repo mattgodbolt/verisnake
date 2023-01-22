@@ -1,23 +1,33 @@
 `default_nettype none
+// stupid formatter keeps combining these lines
+`timescale 1ns / 1ns
 
-module play_area (
+module play_area #(
+    parameter WIDTH = 80,
+    parameter HEIGHT = 60,
+    parameter BIT_DEPTH = 3
+) (
     input wire clk,
-    input wire reset,
-    input wire [6:0] x,  // or whatever
-    input wire [5:0] y,  // or whatever
+    input wire [$clog2(WIDTH)-1:0] x,
+    input wire [$clog2(HEIGHT)-1:0] y,
     input wire write_enable,
-    input wire [2:0] write_value,
-    output reg [2:0] out
+    input wire [BIT_DEPTH-1:0] write_value,
+    output reg [BIT_DEPTH-1:0] out
 );
-  reg [2:0] RAM[(1<<11)-1:0];
+  reg [BIT_DEPTH-1:0] RAM[$clog2(WIDTH*HEIGHT)-1:0];
+  wire [$clog2(WIDTH*HEIGHT)-1:0] address = x + WIDTH * y;
+
   always @(posedge clk) begin
-    if (reset) begin
-      out <= 0;
-    end else begin
+    // TODO, this is a bit overkill. we could just Don't Do That.
+    if (x < WIDTH && y < HEIGHT) begin
       if (write_enable) begin
-        RAM[{y, x}] <= write_value;
+        RAM[address] <= write_value;
+        out <= write_value;
+      end else begin
+        out <= RAM[address];
       end
-      out <= RAM[{y, x}];
+    end else begin
+      out <= 0;
     end
   end
 

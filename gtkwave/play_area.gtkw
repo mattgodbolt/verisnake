@@ -1,0 +1,29 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Sun Jan 22 18:11:32 2023
+[*]
+[dumpfile] "/home/matthew/dev/zero2asic/verisnake/out/play_area.vcd"
+[dumpfile_mtime] "Sun Jan 22 18:11:16 2023"
+[dumpfile_size] 896
+[savefile] "/home/matthew/dev/zero2asic/verisnake/gtkwave/play_area.gtkw"
+[timestart] 0
+[size] 3416 1332
+[pos] 0 498
+*-13.500000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 297
+[signals_width] 158
+[sst_expanded] 1
+[sst_vpaned_height] 416
+@28
+play_area.clk
+@22
+play_area.x[6:0]
+play_area.y[5:0]
+@28
+play_area.write_enable
+play_area.write_value[2:0]
+play_area.out[2:0]
+@25
+play_area.address[12:0]
+[pattern_trace] 1
+[pattern_trace] 0

@@ -26,7 +26,6 @@ module snake (
   reg  [2:0] ram_value = 3'b111;
   play_area play_area (
       .clk(clk),
-      .reset(reset),
       .x(pos_x[9:3]),
       .y(pos_y[8:3]),
       .write_enable(ram_in),
