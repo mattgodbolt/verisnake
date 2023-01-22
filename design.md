@@ -51,9 +51,9 @@ The snake is stored in a circular buffer, with a head and tail (naturally). The 
 which limits the maximum length of the snake.
 
 The snake module:
-- has a `tail_x` and `tail_y`
-- has `NUMSLOTS` direction offsets (buffer)
-- has a `head` offset and a `tail` offset in the buffer
+- has a `tail_x` and `tail_y` - `log2(width)` and `log2(height)` bits
+- has `NUMSLOTS` direction offsets (buffer) 2 bits each
+- has a `head` offset and a `tail` offset in the buffer `log2(NUMSLOTS)` bits
 
 It can generate all the positions of the snake one after another, one cycle after another. It does this
 by starting at `tail_x`, `tail_y` and then each cycle updating by running along the length of the snake,
@@ -66,10 +66,20 @@ It needs to be able to move forward:
 It needs to extend:
 - increment `head` and write the new direction into the `head` slot
 
+Vague plans of ins and outs:
+- in: start iteration
+- out: iteration over
+- in: x and y position
+- out: output is valid (x and y are a part of the snake)
+- out: full (no more room!)
+- in: in_x and in_y
+- in: new_head (in_x and in_y should be placed in the head position)
+- in: move_tail (tail should be updated)
+
 ### Drawing the screen
 
 Assuming 512 snake slots, and 8x8 grid, we're not going to be filing the screen all that much, which
-might make this game a bit easy. The 8x8 on vGA gives a play area of 80x60 (though we could restrict
+might make this game a bit easy. The 8x8 on VGA gives a play area of 80x60 (though we could restrict
 to a subregion).
 
 Either way, we get 800 cycles on VGA each line to be able to iterate over the 512 (if we do one a cycle).
@@ -88,3 +98,8 @@ We only need to do one iteration, and check both at the same time.
 We can start the update at the moment we hit the last pixel of the VGA output. Or more easily on the
 first line after. We get 525-480 = 45 scanlines to do this in, which is easily enough, as any one search
 has to be less than 8 scanlines for the rest of the game to work.
+
+TODOs:
+- Need a source of random numbers (LFSR) for the fruit.
+- Need a strategy for updating the speed and snake length.
+- Consider 10x10 or 12x12 to make the gameplay area more appropriate.
