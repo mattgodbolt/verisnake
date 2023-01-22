@@ -67,6 +67,5 @@ async def test_read_and_write_random_access(dut):
             dut.y.value = y
             dut.write_value.value = rand_val
             await ClockCycles(dut.clk, 1)
-            await Timer(10, units="ns")  # TODO why needed??
-            # print(x, y, dut.out.value.integer, written[(x,y)])
+            await Timer(1, units="ns")  # TODO why needed
             assert dut.out.value.integer == written[(x, y)]
