@@ -57,6 +57,7 @@ module snake (
     end else begin
       ram_value  <= {2'b00, {pos_x[3] ^ pos_y[3]}};
       prev_vsync <= vsync;
+
       if (!prev_vsync && vsync) begin
         if (divider == game_speed) begin
           led = !led;
